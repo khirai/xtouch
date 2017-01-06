@@ -4,10 +4,24 @@
   nchnls    =  2
 
 massign 0,0
+giunittab init 2
 
     instr 1
-  kstatus, kchan, kdata1, kdata2                  midiin              
-            printks   ,"w: stat:%d chan:%d dat1:%d dat2:%d\n", 0.1, kstatus, kchan, kdata1, kdata2
+  kstatus, kchan, kdata1, kdata2  midiin
+  gkunit    init      0                           ;
+
+if kstatus == 0x90 then
+;; page to unit
+  gkunit    tab       kdata1-0x20, giunittab
+
+elseif kstatus== 0xe0 then
+;; modify values in the 
+
+endif
+
+  ktime     times     
+            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
+;           printf   "%x %x %x %x %f\n",kstatus,  kstatus, kchan, kdata1, kdata2, ktime
 
 
     endin

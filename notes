@@ -36,3 +36,14 @@ tape_echo2:
   master vol
 
 why doesn't it receive anymore????
+
+the new paridigm:
+   all dialing is  status b0 channel 1 data1 10-17 up is 4x down is 0x where x is the count since last read
+       dial push   status 90 channel 1 data1 20-27
+       fader       status e0 channel 9 data1 0 data2 value
+       top keys    status 90 channel 1 data1 59.5a,28,29,2a,2b,2c,2d   data2  7f on 00 off
+       bot keys    status 90 channel 1 data1 57,58,5b,5c,56,5d,5e,5f  
+       a/b keys                              54,55
+       
+       decimal ordering of data1 buttons [89, 90, 40, 41, 42, 43, 44, 45, 87, 88, 91, 92, 86, 93, 94, 95, 84, 85]
+       
