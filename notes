@@ -1,0 +1,37 @@
+rx:
+
+mode     cc127 0=midi 1=mackie
+preset 	 prog change 0=a 1=b
+led ring cc1-8 0=single 1=pan 2=fan 3=spread 4-trim
+ring value cc9-16 0=off 1-13=on 13-26=blink 27=allon 29=allblink
+button note0-7,8-15 vel0=off vel1=on vel2=blink
+
+tx: ch11
+
+turn   cc1 - 8
+push   c2  - g2
+top    g#2 - d#1 break in middle from b2-c1 really think this is 3
+bot    e1  - b1  and this is 3
+master cc9
+
+turn   cc11- 18
+push   c0  - g0
+top    g#0 - d#1
+bot    e1  - b1
+master cc10
+
+tape_echo mod:
+   kontrol:
+     loop ctl:
+     pb/rec  : fade/pan vol, pan,
+               top/bot  sync, select
+   xtouch :  speed, feedback, subdiv, start, stop, channl select
+             rec/pb,
+
+tape_echo2:
+  push: select/tgl (select and turn?)
+  turn: channel vol speed subdiv start stop adv fb-lvl fb-to-head   
+  top : r/pb 
+  bot :
+  master vol
+  
