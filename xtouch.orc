@@ -12,12 +12,20 @@ giunittab init 2
 
 if kstatus == 0x90 then
 ;; page to unit
-  gkunit    tab       kdata1-0x20, giunittab
+  if kdata1 >= 40 then
+    if kdata2 == 127 then
+      gkunit    tab       kdata1-32, 2
+            printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
+    endif
+  else
+            printks   "knob:%d\n",0 ,kdata1-32
+  endif
+endif
 
-elseif kstatus== 0xe0 then
+;if kstatus== 0xe0 then
 ;; modify values in the 
 
-endif
+;endif
 
   ktime     times     
             printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
