@@ -2,32 +2,37 @@
   kr        =  4800
   ksmps     =  10
   nchnls    =  2
-gkunits[][] init 18, 16
-massign 0,0
-giunittab init 2
+gkunits[][] init 18, 16  ;; unit info structure, [unit][param] 
+massign 0,0   ;; cause no midi events to trigger score events
+giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
     instr 1
+;; read raw data from the xtouch device in mc mode
   kstatus, kchan, kdata1, kdata2  midiin
-  gkunit    init      0                           ;
+  gkunit    init      0 ;; the current active unit number    ;
 
-  if kstatus == 0x90 then
-
+  if kstatus == 0x90 then 
+     ;; we received a button or a knob press
     if kdata1 >= 40 then
+      ;; receieved a  button press, change the unit
       if kdata2 == 127 then
-         ;; page to unit
-         gkunit    tab       kdata1-32, 2
+         ;; look up unit associated with note number
+         gkunit    tab       kdata1-32, giunittab
               printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
       endif
     else
+      ;; its a knob press, stub
               printks   "knob:%d\n",0 ,kdata1-32
     endif
   elseif kstatus == 0xb0 then
+    ;; received a knob turn,  change the unit data proportionately
     kparm = kdata1-16
     if kdata2 >40 then
       kdelta    =  64 - kdata2
     else
       kdelta    =  kdata2
-    endif
+  endif
+  ;; stub, we need to index a table here unless the table number is zero
   gkunits[gkunit][kparm] = gkunits[gkunit][kparm]+kdelta
  printks   "dial:%d delta:%d value:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm]   
   endif
