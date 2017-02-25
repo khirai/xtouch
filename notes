@@ -46,4 +46,16 @@ the new paridigm:
        a/b keys                              54,55
        
        decimal ordering of data1 buttons [89, 90, 40, 41, 42, 43, 44, 45, 87, 88, 91, 92, 86, 93, 94, 95, 84, 85]
-       
+
+
+another paradigm,
+   how about we create modules. a=program b=run/stop
+   1-16=module selection. the default is bipass
+   we create selections, then send them as events
+   some parms will need to be locked (ivars)
+   some will be modable (kvars)
+   basically, the touch reader chooses how to program
+   the event and ~b makes it run or kills exsisting.
+
+   1 is always audio in select 8 is out 6 gp params to manipulate.
+   

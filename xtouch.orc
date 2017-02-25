@@ -17,7 +17,7 @@ giunittab init 2  ;; the table number of the midinotenumber to unit lut
       ;; receieved a  button press, change the unit
       if kdata2 == 127 then
          ;; look up unit associated with note number
-         gkunit    tab       kdata1-32, giunittab
+              gkunit    tab       kdata1-32, giunittab
               printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
       endif
     else
