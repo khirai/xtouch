@@ -5,13 +5,33 @@
 
 ;; xouch initialization
 
-  gkunits   [][] init   18, 16                    ;; unit info structure, [unit][param]
+#define LUT_ADDR_TYPE # 0 #
+#define LUT_ADDR_FLAG # 1 #
+#define LUT_ADDR_BEG # 2 #
+#define LUT_ADDR_END # 3 #
+#define LUT_ADDR_DATA # 4 #
+#define LUT_ADDR_MULT # 4 #
+#define LUT_ADDR_OFF  # 5 #
+
+#define LUT_TYPE_RAW # 0 #
+#define LUT_TYPE_LIN  # 1 #
+#define LUT_TYPE_TAB  # 2 # 
+
+#define LUT_FLAG_WRAP # 1 #
+#define LUT_FLAG_LIM  # 2 #
+
+
+; lut structures
+;            type flag beg end data...
+; where type can be
+;   linear wrap/lim/none  mult off 
+;   lut    wrap/lim
+;   
+
+  gkunits   [][] init   18,16                     ;; unit info structure, [unit][param]
   gkunitlut [][] init   18,16                     ;; number of the table to index into
-  gkunitval [][] init   18,26                     ;; ultimate value assigned from lut
-gkunitlutlen
-gkunitflgs ;lut/lin wrap/limit 
-gkunitlin_mult
-gkunitlin_off
+  gkunitlutlen [][] init   18,16                     ;; length of the table to index into
+  gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
  
 massign 0,0   ;; cause no midi events to trigger score events
 giunittab init 2  ;; the table number of the midinotenumber to unit lut
@@ -46,21 +66,29 @@ gitabend tableng gitabl
       kdelta    =  64 - kdata2
     else
       kdelta    =  kdata2
-  endif
-  ;; stub, we need to index a table here unless the table number is zero
-  gkunits   [gkunit   ][kparm] = gkunits[gkunit][kparm]+kdelta
-            printks   "dial:%d delta:%d value:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm]   
+    endif
+    ;; stub, we need to index a table here unless the table number is zero
+    gkunits   [gkunit   ][kparm] = gkunits[gkunit][kparm]+kdelta
+ 
 
-  ;; call back for unit param 
-    
-
-  endif
-
+    ;; call back for unit param
+  kft       =  gkunitlut[gkunit][kparm]
+  kftlen    =  gkunitlutlen[gkunit][kparm]
+    if  kft  == 0 then   ;passsthough
+      gkunitval[gkunit][kparm] = gkunits[gkunit][kparm]
+    else     ;read from table
+      if gkunits[gkunit][kparm] < 1 then
+        gkunits   [gkunit   ][kparm] = 1
+      endif
+      gkunitval[gkunit][kparm]  tab kft, gkunits[gkunit][kparm]%kftlen 
+    endif
+  
+            printks   "dial:%d delta:%d raw:%d val:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm],gkunitval[gkunit][karam]   
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
 
-;endif
+  endif
 
   ktime     times     
             printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
@@ -92,8 +120,10 @@ endif
 
 ;;playback
     instr 11
+  gkunitlut [p4][0] init p5
+
 kunit=p4
-kspeed=gunit[0][0]
+kspeed=gunitval[0][0]
   aoutl     lposcil   4096, kspeed, 0, gitabend, gitabl
             outs      aoutl,aoutr
     endin
