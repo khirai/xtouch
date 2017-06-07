@@ -80,10 +80,10 @@ gitabend tableng gitabl
       if gkunits[gkunit][kparm] < 1 then
         gkunits   [gkunit   ][kparm] = 1
       endif
-      gkunitval[gkunit][kparm]  tab kft, gkunits[gkunit][kparm]%kftlen 
+      gkunitval[gkunit][kparm]  tablekt kft, gkunits[gkunit][kparm]%kftlen 
     endif
   
-            printks   "dial:%d delta:%d raw:%d val:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm],gkunitval[gkunit][karam]   
+            printks   "dial:%d delta:%d raw:%d val:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm], gkunitval[gkunit][kparm]   
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
@@ -123,9 +123,9 @@ endif
   gkunitlut [p4][0] init p5
 
 kunit=p4
-kspeed=gunitval[0][0]
+kspeed=gkunitval[0][0]
   aoutl     lposcil   4096, kspeed, 0, gitabend, gitabl
-            outs      aoutl,aoutr
+            outs      aoutl,aoutl
     endin
 
 
