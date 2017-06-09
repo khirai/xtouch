@@ -34,7 +34,7 @@
   gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
  
 massign 0,0   ;; cause no midi events to trigger score events
-giunittab init 2  ;; the table number of the midinotenumber to unit lut
+ giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
 ;;audio initialization
 gitabl ftgen 0, 0, sr*8, 2, 0
@@ -77,13 +77,13 @@ gitabend tableng gitabl
     if  kft  == 0 then   ;passsthough
       gkunitval[gkunit][kparm] = gkunits[gkunit][kparm]
     else     ;read from table
-      if gkunits[gkunit][kparm] < 1 then
-        gkunits   [gkunit   ][kparm] = 1
+      if gkunits[gkunit][kparm] < 0 then
+        gkunits   [gkunit   ][kparm] = 0
       endif
-      gkunitval[gkunit][kparm]  tablekt kft, gkunits[gkunit][kparm]%kftlen 
+      gkunitval[gkunit][kparm]  tablekt  gkunits[gkunit][kparm]%kftlen  , kft
     endif
   
-            printks   "dial:%d delta:%d raw:%d val:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm], gkunitval[gkunit][kparm]   
+            printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
@@ -113,8 +113,10 @@ endif
 
 ;; recording instr
     instr 10
+  gkunitlut[p4][1] init p5
+gkunitlutlen[p4][1] init ftlen(p5)
   ainl, ainr   ins    
-  arecpos   phasor    sr
+  arecpos   phasor    sr * gkunitval[p3][1]
             tabw      ainl, arecpos, gitabl
     endin
 
