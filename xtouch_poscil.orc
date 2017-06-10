@@ -76,14 +76,13 @@ gitabend tableng gitabl
   kftlen    =  gkunitlutlen[gkunit][kparm]
     if  kft  == 0 then   ;passsthough
       gkunitval[gkunit][kparm] = gkunits[gkunit][kparm]
-    else     ;read from table
-      if gkunits[gkunit][kparm] < 0 then
-        gkunits   [gkunit   ][kparm] = 0
-      endif
-      gkunitval[gkunit][kparm]  tablekt  gkunits[gkunit][kparm]%kftlen  , kft
+    else     ;check boundries , read from table 
+      kunitlim limit gkunits[gkunit][kparm], 0 , kftlen
+      gkunits   [gkunit][kparm] = kunitlim
+      gkunitval [gkunit][kparm]  tablekt  kunitlim  , kft
     endif
   
-            printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
+    printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
@@ -114,18 +113,20 @@ endif
 ;; recording instr
     instr 10
   gkunitlut[p4][1] init p5
-gkunitlutlen[p4][1] init ftlen(p5)
+  gkunitlutlen [p4    ][1] init ftlen(p5)
+  kspeed    =  gkunitval[p3][1]
+
   ainl, ainr   ins    
-  arecpos   phasor    sr * gkunitval[p3][1]
-            tabw      ainl, arecpos, gitabl
+  arecpos   phasor    sr * kspeed
+            tabw      ainl+ainr, arecpos, gitabl
     endin
 
 ;;playback
     instr 11
-  gkunitlut [p4][0] init p5
+  gkunitlut [p4][1] init p5
+  gkunitlutlen [p4    ][1] init ftlen(p5)
+  kspeed    =  gkunitval[p3][1]
 
-kunit=p4
-kspeed=gkunitval[0][0]
   aoutl     lposcil   4096, kspeed, 0, gitabend, gitabl
             outs      aoutl,aoutl
     endin
