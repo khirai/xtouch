@@ -1,8 +1,8 @@
-  ar        =  48000
-  kr        =  4800
+  ar        =  96000
+  kr        =  9600
   ksmps     =  10
   nchnls    =  2
-
+  0dbfs     =  1
 ;; xouch initialization
 
 #define LUT_ADDR_TYPE # 0 #
@@ -37,7 +37,7 @@ massign 0,0   ;; cause no midi events to trigger score events
  giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
 ;;audio initialization
-gitabl ftgen 0, 0, sr*8, 2, 0
+gitabl ftgen 0, 0, sr*2, 2, 0
 gitabend tableng gitabl
 
 
@@ -114,20 +114,22 @@ endif
     instr 10
   gkunitlut[p4][1] init p5
   gkunitlutlen [p4    ][1] init ftlen(p5)
-  kspeed    =  gkunitval[p3][1]
+  kspeed    =  gkunitval[p4][1]
 
   ainl, ainr   ins    
-  arecpos   phasor    sr * kspeed
-            tabw      ainl+ainr, arecpos, gitabl
+  arecpos   phasor    sr/gitabend * kspeed
+            tabw      ainl, arecpos*gitabend, gitabl
+
+
     endin
 
 ;;playback
     instr 11
   gkunitlut [p4][1] init p5
   gkunitlutlen [p4    ][1] init ftlen(p5)
-  kspeed    =  gkunitval[p3][1]
+  kspeed    =  gkunitval[p4][1]
 
-  aoutl     lposcil   4096, kspeed, 0, gitabend, gitabl
+  aoutl     lposcil   1, kspeed, 0, gitabend, gitabl
             outs      aoutl,aoutl
     endin
 
