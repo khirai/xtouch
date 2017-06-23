@@ -82,7 +82,7 @@ gitabend tableng gitabl
       gkunitval [gkunit][kparm]  tablekt  kunitlim  , kft
     endif
   
-    printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
+;    printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
@@ -90,7 +90,7 @@ gitabend tableng gitabl
   endif
 
   ktime     times     
-            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
+;            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
 ;           printf   "%x %x %x %x %f\n",kstatus,  kstatus, kchan, kdata1, kdata2, ktime
 
 
@@ -128,7 +128,7 @@ endif
   gkunitlut [p4][1] init p5
   gkunitlutlen [p4    ][1] init ftlen(p5)
   kspeed    =  gkunitval[p4][1]
-
+            printks   "%2d: %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f", 1, p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
   aoutl     lposcil   1, kspeed, 0, gitabend, gitabl
             outs      aoutl,aoutl
     endin
