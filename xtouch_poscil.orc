@@ -32,10 +32,11 @@
   gkunitlut [][] init   18,16                     ;; number of the table to index into
   gkunitlutlen [][] init   18,16                     ;; length of the table to index into
   gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
- 
+gSunitdisp [] init 18 
 massign 0,0   ;; cause no midi events to trigger score events
  giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
+gSunitdisp[0]="unit  1    2    3    4    5    6    7    8\n"
 ;;audio initialization
 gitabl ftgen 0, 0, sr*2, 2, 0
 gitabend tableng gitabl
@@ -112,10 +113,10 @@ endif
 
 ;; recording instr
     instr 10
-  gkunitlut[p4][1] init p5
-  gkunitlutlen [p4    ][1] init ftlen(p5)
-  kspeed    =  gkunitval[p4][1]
-
+  gkunitlut[p4][2] init p5
+  gkunitlutlen [p4    ][2] init ftlen(p5)
+  kspeed    =  gkunitval[p4][2]
+   gSunitdisp[p4]  sprintfk   "%2d: %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
   ainl, ainr   ins    
   arecpos   phasor    sr/gitabend * kspeed
             tabw      ainl, arecpos*gitabend, gitabl
@@ -125,15 +126,19 @@ endif
 
 ;;playback
     instr 11
-  gkunitlut [p4][1] init p5
-  gkunitlutlen [p4    ][1] init ftlen(p5)
-  kspeed    =  gkunitval[p4][1]
-            printks   "%2d: %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f", 1, p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
-  aoutl     lposcil   1, kspeed, 0, gitabend, gitabl
-            outs      aoutl,aoutl
+  gkunitlut [p4][2] init p5
+  gkunitlutlen [p4    ][2] init ftlen(p5)
+  kvol      =  gkunitval[p4][0]*gkunitval[p4][0] * 0.001
+   kpan = (gkunitval[p4][1]+50)/100
+  kspeed    =  gkunitval[p4][2]
+   gSunitdisp[p4]    sprintfk   "%2d: %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
+  aout      lposcil   1, kspeed, 0, gitabend, gitabl
+  aoutl, aoutr pan2   aout*kvol, kpan 
+            outs      aoutl ,aoutr
     endin
 
 
     instr 100
-            printks   , "midi 11",0.5
+  ktrig     metro     1
+            printf     "1%s%s%s%s%s%s%s%s%s", ktrig ,gSunitdisp[0],  gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8]
     endin
