@@ -1,5 +1,5 @@
-  ar        =  96000
-  kr        =  9600
+  ar        =  41000
+  kr        =  4100
   ksmps     =  10
   nchnls    =  2
   0dbfs     =  1
@@ -32,11 +32,10 @@
   gkunitlut [][] init   18,16                     ;; number of the table to index into
   gkunitlutlen [][] init   18,16                     ;; length of the table to index into
   gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
-gSunitdisp [] init 18 
-massign 0,0   ;; cause no midi events to trigger score events
+  gSdisp [] init 16
+            massign   0,0                         ;; cause no midi events to trigger score events
  giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
-gSunitdisp[0]="unit  1    2    3    4    5    6    7    8\n"
 ;;audio initialization
 gitabl ftgen 0, 0, sr*2, 2, 0
 gitabend tableng gitabl
@@ -46,6 +45,10 @@ gitabend tableng gitabl
 ;; read raw data from the xtouch device in mc mode
   kstatus, kchan, kdata1, kdata2  midiin
   gkunit    init      0 ;; the current active unit number    ;
+  gkount    init      0
+  gktrig    metro     4
+  gkount    +=        gktrig
+
 
   if kstatus == 0x90 then 
      ;; we received a button or a knob press
@@ -54,14 +57,14 @@ gitabend tableng gitabl
       if kdata2 == 127 then
          ;; look up unit associated with note number
               gkunit    tab       kdata1-32, giunittab
-              printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
+            ;  printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
       endif
     else
       ;; its a knob press, stub
-              printks   "knob:%d\n",0 ,kdata1-32
+           ;   printks   "knob:%d\n",0 ,kdata1-32
     endif
   elseif kstatus == 0xb0 then
-    ;; received a knob turn,  change the unit data proportionately
+     ;; received a knob turn,  change the unit data proportionately
     kparm = kdata1-16
     if kdata2 >40 then
       kdelta    =  64 - kdata2
@@ -87,22 +90,35 @@ gitabend tableng gitabl
 
 ;if kstatus== 0xe0 then
 ;; modify values in the 
+;; endif
 
   endif
 
-  ktime     times     
+;  ktime     times     
 ;            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
 ;           printf   "%x %x %x %x %f\n",kstatus,  kstatus, kchan, kdata1, kdata2, ktime
+
+;; initialize the pack on the virtical dispal strings
+  if gktrig ==1 then
+    gSdisp    [k(0        )] = "0:"
+    gSdisp    [k(1        )] = "1:"
+    gSdisp    [k(2        )] = "2:"
+    gSdisp    [k(3        )] = "3:"
+    gSdisp    [k(4        )] = "4:"
+    gSdisp    [k(5        )] = "5:"
+    gSdisp    [k(6        )] = "6:"
+    gSdisp    [k(7        )] = "7:"
+  endif
 
 
     endin
 
-    instr 2
+    instr 2  ;; supposed to do the light show, not sure which mode its got to be in
   kcnt      init      0
   kmod      init      49 
         
 if kcnt % kmod == 0 then
-            printks   , "i2 %d\n", 0.5, kcnt/kmod%12+1
+           ; printks   , "i2 %d\n", 0.5, kcnt/kmod%12+1
             outkc 1,9,kcnt/kmod%12+1,0,127
 
 ;            midiout   176, 0, kcnt/kmod%8+9,kcnt/kmod%12+1
@@ -111,12 +127,24 @@ endif
 
     endin
 
+    instr 9  ;;; loop size control
+
+    endin
+
+
 ;; recording instr
     instr 10
+  Sdisp     [] init   16 
   gkunitlut[p4][2] init p5
   gkunitlutlen [p4    ][2] init ftlen(p5)
   kspeed    =  gkunitval[p4][2]
-   gSunitdisp[p4]  sprintfk   "%2d: %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
+  if gktrig ==1 then
+    kitr=0
+    while kitr>8 do
+      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+      gSdisp    [kitr] strcpyk Sdisp[kitr]
+    od
+  endif
   ainl, ainr   ins    
   arecpos   phasor    sr/gitabend * kspeed
             tabw      ainl, arecpos*gitabend, gitabl
@@ -126,12 +154,19 @@ endif
 
 ;;playback
     instr 11
+  Sdisp     [] init   16
   gkunitlut [p4][2] init p5
   gkunitlutlen [p4    ][2] init ftlen(p5)
   kvol      =  gkunitval[p4][0]*gkunitval[p4][0] * 0.001
    kpan = (gkunitval[p4][1]+50)/100
   kspeed    =  gkunitval[p4][2]
-   gSunitdisp[p4]    sprintfk   "%2d: %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", p4, gkunitval[p4][0],gkunitval[p4][1],gkunitval[p4][2],gkunitval[p4][3],gkunitval[p4][4],gkunitval[p4][5],gkunitval[p4][6],gkunitval[p4][7] 
+if gktrig == 1 then
+    kitr=0
+    while kitr>8 do
+      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+      gSdisp    [kitr] strcpyk Sdisp[kitr]
+    od
+ endif
   aout      lposcil   1, kspeed, 0, gitabend, gitabl
   aoutl, aoutr pan2   aout*kvol, kpan 
             outs      aoutl ,aoutr
@@ -139,6 +174,16 @@ endif
 
 
     instr 100
-  ktrig     metro     1
-            printf     "1%s%s%s%s%s%s%s%s%s", ktrig ,gSunitdisp[0],  gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8]
+
+  printf"%s\n", gktrig, gSdisp[k(0)]
+  printf"%s\n", gktrig, gSdisp[k(1)]
+  printf"%s\n", gktrig, gSdisp[k(2)]
+  printf"%s\n", gktrig, gSdisp[k(3)]
+  printf"%s\n", gktrig, gSdisp[k(4)]
+  printf"%s\n", gktrig, gSdisp[k(5)]
+  printf"%s\n", gktrig, gSdisp[k(6)]
+  printf"%s\n", gktrig, gSdisp[k(7)]
+
+;;  printf    "%s%s%s%s%s%s%s%s%d:%d\n", gkount,gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8],gkount,gktrig
+
     endin
