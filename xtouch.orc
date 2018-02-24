@@ -22,7 +22,7 @@ giunittab init 2  ;; the table number of the midinotenumber to unit lut
       endif
     else
       ;; its a knob press, stub
-              printks   "knob:%d\n",0 ,kdata1-32
+              printks   "knob:%d value %d\n",0 ,kdata1-32, kdata2
     endif
   elseif kstatus == 0xb0 then
     ;; received a knob turn,  change the unit data proportionately
@@ -55,7 +55,7 @@ giunittab init 2  ;; the table number of the midinotenumber to unit lut
   kmod      init      49 
         
 if kcnt % kmod == 0 then
-            printks   , "i2 %d\n", 0.5, kcnt/kmod%12+1
+         ;   printks   , "i2 %d\n", 0.5, kcnt/kmod%12+1
             outkc 1,9,kcnt/kmod%12+1,0,127
 
 ;            midiout   176, 0, kcnt/kmod%8+9,kcnt/kmod%12+1
@@ -65,5 +65,5 @@ endif
     endin
 
     instr 11
-            printks   , "midi 11",0.5
+;            printks   , "midi 11",0.5
     endin

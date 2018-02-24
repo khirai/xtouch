@@ -1,5 +1,5 @@
-  ar        =  41000
-  kr        =  4100
+  ar        =  44100
+  kr        =  4410
   ksmps     =  10
   nchnls    =  2
   0dbfs     =  1
@@ -30,7 +30,7 @@
 
   gkunits   [][] init   18,16                     ;; unit info structure, [unit][param]
   gkunitlut [][] init   18,16                     ;; number of the table to index into
-  gkunitlutlen [][] init   18,16                     ;; length of the table to index into
+  gkunitlutlen [][] init   18,16                  ;; length of the table to index into
   gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
   gSdisp [] init 16
             massign   0,0                         ;; cause no midi events to trigger score events
@@ -98,8 +98,9 @@ gitabend tableng gitabl
 ;            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
 ;           printf   "%x %x %x %x %f\n",kstatus,  kstatus, kchan, kdata1, kdata2, ktime
 
-;; initialize the pack on the virtical dispal strings
-  if gktrig ==1 then
+;; initialize the pack on the virtical display strings
+if gktrig ==1 then
+
     gSdisp    [k(0        )] = "0:"
     gSdisp    [k(1        )] = "1:"
     gSdisp    [k(2        )] = "2:"
@@ -127,9 +128,31 @@ endif
 
     endin
 
-    instr 9  ;;; loop size control
+    instr 9  ;;; loop size control p4=unit 
+
+;; manages loop start and loop end in 2 dividors of the
+  gktabscend   init   gitabend
+  Sdisp     [] init   16
+  gkunitlut[p4][0] init p5
+  gkunitlutlen [p4    ][0] init ftlen(p5)
+  gkunitlut[p4][1] init p5
+  gkunitlutlen [p4    ][1] init ftlen(p5)
+  
+  gktabscend    =  gkunitval[p4][0]*gkunitval[p4][1]*gitabend
+
+  if gktrig ==1 then
+    kitr=0
+    while kitr<8 do
+      Sdisp[kitr]   sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+      gSdisp    [kitr     ] strcpyk Sdisp[kitr]
+      kitr+=1
+    od
+  endif
 
     endin
+
+
+
 
 
 ;; recording instr
@@ -140,14 +163,16 @@ endif
   kspeed    =  gkunitval[p4][2]
   if gktrig ==1 then
     kitr=0
-    while kitr>8 do
+    while kitr<8 do
       Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
-      gSdisp    [kitr] strcpyk Sdisp[kitr]
+      gSdisp    [kitr     ] strcpyk Sdisp[kitr]
+      kitr+=1
     od
   endif
   ainl, ainr   ins    
-  arecpos   phasor    sr/gitabend * kspeed
-            tabw      ainl, arecpos*gitabend, gitabl
+ ktabscend limit gktabscend, kr, gitabend
+  arecpos   phasor    sr/ktabscend * kspeed
+            tabw      ainl, arecpos*ktabscend, gitabl
 
 
     endin
@@ -162,12 +187,13 @@ endif
   kspeed    =  gkunitval[p4][2]
 if gktrig == 1 then
     kitr=0
-    while kitr>8 do
+    while kitr<8 do
       Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
-      gSdisp    [kitr] strcpyk Sdisp[kitr]
+      gSdisp    [kitr     ] strcpyk Sdisp[kitr]
+      kitr+=1
     od
  endif
-  aout      lposcil   1, kspeed, 0, gitabend, gitabl
+  aout      lposcil3   1, kspeed, 0, gktabscend, gitabl
   aoutl, aoutr pan2   aout*kvol, kpan 
             outs      aoutl ,aoutr
     endin
