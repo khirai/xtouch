@@ -1,5 +1,5 @@
-  ar        =  44100
-  kr        =  4410
+  ar        =  88200
+  kr        =  8820
   ksmps     =  10
   nchnls    =  2
   0dbfs     =  1
