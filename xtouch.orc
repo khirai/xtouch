@@ -34,7 +34,7 @@ giunittab init 2  ;; the table number of the midinotenumber to unit lut
   endif
   ;; stub, we need to index a table here unless the table number is zero
   gkunits[gkunit][kparm] = gkunits[gkunit][kparm]+kdelta
- printks   "dial:%d delta:%d value:%d\n",0,kparm ,kdelta, gkunits[gkunit][kparm]   
+ printks   "unit:%d dial:%d delta:%d value:%d\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm]   
   endif
 
 
