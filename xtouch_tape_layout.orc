@@ -19,7 +19,8 @@ nchnls    =  2
 
 #define LUT_FLAG_WRAP # 1 #
 #define LUT_FLAG_LIM  # 2 #
-
+#define NUM_PARAM " 2 "
+#define NUM_UNIT " 8 "
 
 ; lut structures
 ;            type flag beg end data...
@@ -28,13 +29,15 @@ nchnls    =  2
 ;   lut    wrap/lim
 ;   
 
-gkunits   [][] init   18,16                     ;; unit info structure, [unit][param]
-gkunitlut [][] init   18,16                     ;; number of the table to index into
-gkunitlutlen [][] init   18,16                  ;; length of the table to index into
-gkunitval [][] init   18,16                     ;; ultimate value assigned from lut
-gSdisp [] init 16
+gkunits   [][] init      NUM_PARAM,NUM_UNIT                  ;; unit info structure, [unit][param]
+gkunitlut [][] init      NUM_PARAM,NUM_UNIT                  ;; number of the table to index into
+gkunitlutlen [][] init   NUM_PARAM,NUM_UNIT                  ;; length of the table to index into
+gkunitval [][] init      NUM_PARAM,NUM_UNIT                  ;; ultimate value assigned from lut
+gSdisp [] init NUM_PARAM
 massign   0,0                         ;; cause no midi events to trigger score events
 giunittab init 2  ;; the table number of the midinotenumber to unit lut
+
+gimaxunit init 2
 
 ;;audio initialization
 gitabl ftgen 0, 0, sr*2, 2, 0
@@ -44,7 +47,7 @@ gitabend tableng gitabl
 instr 1
 ;; read raw data from the xtouch device in mc mode
   kstatus, kchan, kdata1, kdata2  midiin
-  gkunit    init      0 ;; the current active unit number    ;
+  gkparam    init      0 ;; the current active unit number    ;
   gkount    init      0
   gktrig    metro     4
   gkount    +=        gktrig
@@ -53,37 +56,38 @@ instr 1
   if kstatus == 0x90 then 
      ;; we received a button or a knob press
     if kdata1 >= 40 then
-      ;; receieved a  button press, change the unit
+      ;; receieved a  button press, trigger unit action
       if kdata2 == 127 then
          ;; look up unit associated with note number
-              gkunit    tab       kdata1-32, giunittab
-            ;  printks   "button:%d unit change:%d\n",0 , kdata1, gkunit
+            ;  gkunit    tab       kdata1-32, giunittab
+              printks   "button:%d\n",0 , kdata1
       endif
     else
-      ;; its a knob press, stub
+      ;; its a knob press, change parameter
+           gkparam = (gkparam + 1) % NUM_PARAM 
            ;   printks   "knob:%d\n",0 ,kdata1-32
     endif
   elseif kstatus == 0xb0 then
      ;; received a knob turn,  change the unit data proportionately
-    kparm = kdata1-16
+    kunit = kdata1-16
     if kdata2 >40 then
       kdelta    =  64 - kdata2
     else
       kdelta    =  kdata2
     endif
     ;; stub, we need to index a table here unless the table number is zero
-    gkunits   [gkunit   ][kparm] = gkunits[gkunit][kparm]+kdelta
+    gkunits   [gkparam ][kunit] = gkunits[gkparam][kunit]+kdelta
  
 
     ;; call back for unit param
-  kft       =  gkunitlut[gkunit][kparm]
-  kftlen    =  gkunitlutlen[gkunit][kparm]
+  kft       =  gkunitlut[gkparam][kunit]
+  kftlen    =  gkunitlutlen[gkparam][kunit]
     if  kft  == 0 then   ;passsthough
-      gkunitval[gkunit][kparm] = gkunits[gkunit][kparm]
+      gkunitval[gkparam][kunit] = gkunits[gkparam][kunit]
     else     ;check boundries , read from table 
-      kunitlim limit gkunits[gkunit][kparm], 0 , kftlen
-      gkunits   [gkunit][kparm] = kunitlim
-      gkunitval [gkunit][kparm]  tablekt  kunitlim  , kft
+      kunitlim limit gkunits[gkparam][kunit], 0 , kftlen
+      gkunits   [gkparam][kunit] = kunitlim
+      gkunitval [gkparam][kunit]  tablekt  kunitlim  , kft
     endif
   
 ;    printks   "unit: %d pram:%d delta:%d raw:%d lut:%d val:%f\n",0,gkunit, kparm ,kdelta, gkunits[gkunit][kparm],kft, gkunitval[gkunit][kparm]   
@@ -134,17 +138,17 @@ endif
 ;; manages loop start and loop end in 2 dividors of the
   gktabscend   init   gitabend
   Sdisp     [] init   16
-  gkunitlut[p4][0] init p5
-  gkunitlutlen [p4    ][0] init ftlen(p5)
-  gkunitlut[p4][1] init p5
-  gkunitlutlen [p4    ][1] init ftlen(p5)
+  gkunitlut[0][p4] init p5
+  gkunitlutlen [0][p4] init ftlen(p5)
+  gkunitlut[1][p4] init p5
+  gkunitlutlen [1][p4] init ftlen(p5)
   
-  gktabscend    =  gkunitval[p4][0]*gkunitval[p4][1]*gitabend
+  gktabscend    =  gkunitval[0][p4]*gkunitval[1][p4]*gitabend
 
   if gktrig ==1 then
     kitr=0
-    while kitr<8 do
-      Sdisp[kitr]   sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+    while kitr<NUM_PARAM do
+      Sdisp[kitr]   sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
     od
@@ -156,13 +160,13 @@ endif
 ;; recording instr
     instr 10
   Sdisp     [] init   16 
-  gkunitlut[p4][2] init p5
-  gkunitlutlen [p4    ][2] init ftlen(p5)
-  kspeed    =  gkunitval[p4][2]
+  gkunitlut[0][p4] init p5
+  gkunitlutlen [0][p4] init ftlen(p5)
+  kspeed    =  gkunitval[0][p4]
   if gktrig ==1 then
     kitr=0
-    while kitr<8 do
-      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+    while kitr<NUM_PARAM do
+      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
     od
@@ -178,15 +182,15 @@ endif
 ;;playback
     instr 11
   Sdisp     [] init   16
-  gkunitlut [p4][2] init p5
-  gkunitlutlen [p4    ][2] init ftlen(p5)
-  kvol      =  gkunitval[p4][0]*gkunitval[p4][0] * 0.001
-   kpan = (gkunitval[p4][1]+50)/100
-  kspeed    =  gkunitval[p4][2]
+  gkunitlut [0][p4] init p5
+  gkunitlutlen [0][p4    ] init ftlen(p5)
+  kvol      =  gkunitval[1][p4]*gkunitval[1][p4] * 0.001
+   kpan =  0.5 ;(gkunitval[2][p4]+50)/100
+  kspeed    =  gkunitval[0][p4]
 if gktrig == 1 then
     kitr=0
-    while kitr<8 do
-      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[p4][kitr]
+    while kitr<NUM_PARAM do
+      Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
     od
@@ -199,16 +203,19 @@ if gktrig == 1 then
 
     instr 100
   printf    "       %d        2        3        4        5        6        7        8\n",gktrig,1
- 
+ kitr=0
+while kitr < NUM_PARAM do
+  printf"%s\n", gktrig, gSdisp[kitr]
+  kitr=kitr+1
+od
 
-  printf"%s\n", gktrig, gSdisp[k(0)]
-  printf"%s\n", gktrig, gSdisp[k(1)]
-  printf"%s\n", gktrig, gSdisp[k(2)]
-  printf"%s\n", gktrig, gSdisp[k(3)]
-  printf"%s\n", gktrig, gSdisp[k(4)]
-  printf"%s\n", gktrig, gSdisp[k(5)]
-  printf"%s\n", gktrig, gSdisp[k(6)]
-  printf"%s\n", gktrig, gSdisp[k(7)]
+;  printf"%s\n", gktrig, gSdisp[k(1)]
+;  printf"%s\n", gktrig, gSdisp[k(2)]
+;  printf"%s\n", gktrig, gSdisp[k(3)]
+;  printf"%s\n", gktrig, gSdisp[k(4)]
+;  printf"%s\n", gktrig, gSdisp[k(5)]
+;  printf"%s\n", gktrig, gSdisp[k(6)]
+;  printf"%s\n", gktrig, gSdisp[k(7)]
 
 ;;  printf    "%s%s%s%s%s%s%s%s%d:%d\n", gkount,gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8],gkount,gktrig
 
