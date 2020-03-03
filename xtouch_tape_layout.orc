@@ -19,8 +19,8 @@ nchnls    =  2
 
 #define LUT_FLAG_WRAP # 1 #
 #define LUT_FLAG_LIM  # 2 #
-#define NUM_PARAM " 2 "
-#define NUM_UNIT " 8 "
+#define NUM_PARAM # 2 #
+#define NUM_UNIT # 8 #
 
 ; lut structures
 ;            type flag beg end data...
@@ -29,11 +29,11 @@ nchnls    =  2
 ;   lut    wrap/lim
 ;   
 
-gkunits   [][] init      NUM_PARAM,NUM_UNIT                  ;; unit info structure, [unit][param]
-gkunitlut [][] init      NUM_PARAM,NUM_UNIT                  ;; number of the table to index into
-gkunitlutlen [][] init   NUM_PARAM,NUM_UNIT                  ;; length of the table to index into
-gkunitval [][] init      NUM_PARAM,NUM_UNIT                  ;; ultimate value assigned from lut
-gSdisp [] init NUM_PARAM
+gkunits   [][] init      $NUM_PARAM , $NUM_UNIT                  ;; unit info structure, [unit][param]
+gkunitlut [][] init      $NUM_PARAM , $NUM_UNIT                  ;; number of the table to index into
+gkunitlutlen [][] init   $NUM_PARAM , $NUM_UNIT                  ;; length of the table to index into
+gkunitval [][] init      $NUM_PARAM , $NUM_UNIT                  ;; ultimate value assigned from lut
+gSdisp [] init $NUM_PARAM
 massign   0,0                         ;; cause no midi events to trigger score events
 giunittab init 2  ;; the table number of the midinotenumber to unit lut
 
@@ -64,7 +64,7 @@ instr 1
       endif
     else
       ;; its a knob press, change parameter
-           gkparam = (gkparam + 1) % NUM_PARAM 
+           gkparam = (gkparam + 1) % $NUM_PARAM 
            ;   printks   "knob:%d\n",0 ,kdata1-32
     endif
   elseif kstatus == 0xb0 then
@@ -147,7 +147,7 @@ endif
 
   if gktrig ==1 then
     kitr=0
-    while kitr<NUM_PARAM do
+    while kitr<$NUM_PARAM do
       Sdisp[kitr]   sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
@@ -165,7 +165,7 @@ endif
   kspeed    =  gkunitval[0][p4]
   if gktrig ==1 then
     kitr=0
-    while kitr<NUM_PARAM do
+    while kitr<$NUM_PARAM do
       Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
@@ -189,7 +189,7 @@ endif
   kspeed    =  gkunitval[0][p4]
 if gktrig == 1 then
     kitr=0
-    while kitr<NUM_PARAM do
+    while kitr<$NUM_PARAM do
       Sdisp     [kitr] sprintfk "%s %8.3f",gSdisp[kitr],gkunitval[kitr][p4]
       gSdisp    [kitr     ] strcpyk Sdisp[kitr]
       kitr+=1
@@ -204,7 +204,7 @@ if gktrig == 1 then
     instr 100
   printf    "       %d        2        3        4        5        6        7        8\n",gktrig,1
  kitr=0
-while kitr < NUM_PARAM do
+while kitr < $NUM_PARAM do
   printf"%s\n", gktrig, gSdisp[kitr]
   kitr=kitr+1
 od
