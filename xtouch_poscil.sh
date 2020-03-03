@@ -7,4 +7,4 @@
 ### soundfile
  #csound  -d -realtime -+rtmidi=alsa -M hw:${1},0,0 -+rtaudio=jack  -b 1024   -i gochakabuchi.wav -o dac  xtouch_poscil.orc xtouch_poscil.sco 
 
- csound  -d -realtime -+rtmidi=alsa -M hw:${1},0,0 -+rtaudio=jack  -b 1024   -i gochakabuchi.wav -o dac  xtouch_tape_layout.orc xtouch_poscil.sco 
+ csound  -d -realtime -+rtmidi=alsa -M hw:${1},0,0   -b 1024   -i gochakabuchi.wav -o dac:hw:${2},0 --num-threads=4  xtouch_tape_layout.orc xtouch_poscil.sco 

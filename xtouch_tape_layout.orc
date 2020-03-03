@@ -108,12 +108,12 @@ if gktrig ==1 then
 
     gSdisp    [k(0        )] = "1:"
     gSdisp    [k(1        )] = "2:"
-    gSdisp    [k(2        )] = "3:"
-    gSdisp    [k(3        )] = "4:"
-    gSdisp    [k(4        )] = "5:"
-    gSdisp    [k(5        )] = "6:"
-    gSdisp    [k(6        )] = "7:"
-    gSdisp    [k(7        )] = "8:"
+;    gSdisp    [k(2        )] = "3:"
+ ;   gSdisp    [k(3        )] = "4:"
+  ;  gSdisp    [k(4        )] = "5:"
+   ; gSdisp    [k(5        )] = "6:"
+    ;gSdisp    [k(6        )] = "7:"
+    ;gSdisp    [k(7        )] = "8:"
 endif
 
 
