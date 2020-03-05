@@ -203,20 +203,21 @@ if gktrig == 1 then
 
     instr 100
   printf    "       %d        2        3        4        5        6        7        8\n",gktrig,1
- kitr=0
-while kitr < $NUM_PARAM do
-  printf"%s\n", gktrig, gSdisp[kitr]
-  kitr=kitr+1
-od
+; kitr=0
+;while ( kitr < $NUM_PARAM ) do
+;  printf"%s . %d\n", gktrig, gSdisp[kitr],kitr
+;gktrig +=1 
+;  kitr= kitr + 1
+;od
 
-;  printf"%s\n", gktrig, gSdisp[k(1)]
-;  printf"%s\n", gktrig, gSdisp[k(2)]
+  printf"%s\n", gktrig, gSdisp[k(0)]
+  printf"%s\n", gktrig, gSdisp[k(1)]
 ;  printf"%s\n", gktrig, gSdisp[k(3)]
 ;  printf"%s\n", gktrig, gSdisp[k(4)]
 ;  printf"%s\n", gktrig, gSdisp[k(5)]
 ;  printf"%s\n", gktrig, gSdisp[k(6)]
 ;  printf"%s\n", gktrig, gSdisp[k(7)]
 
-;;  printf    "%s%s%s%s%s%s%s%s%d:%d\n", gkount,gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8],gkount,gktrig
+;  printf    "%s%s%s%s%s%s%s%s%d:%d\n", gkount,gSunitdisp[1],gSunitdisp[2],gSunitdisp[3],gSunitdisp[4],gSunitdisp[5],gSunitdisp[6],gSunitdisp[7],gSunitdisp[8],gkount,gktrig
 
     endin
