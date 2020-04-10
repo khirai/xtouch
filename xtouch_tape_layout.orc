@@ -65,7 +65,8 @@ instr 1
     else
       ;; its a knob press, change parameter
            gkparam = (gkparam + 1) % $NUM_PARAM 
-           ;   printks   "knob:%d\n",0 ,kdata1-32
+           printks "gkparam: %d\n",0,gkparam
+           printks   "knob:%d kstatus: %d\n",0 ,kdata1-32,kstatus
     endif
   elseif kstatus == 0xb0 then
      ;; received a knob turn,  change the unit data proportionately
@@ -98,8 +99,8 @@ instr 1
 
   endif
 
-;  ktime     times     
-;            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
+  ktime     times     
+            printf    "w: stat:%x chan:%x dat1:%x dat2:%x unit:%d time:%f\n",kstatus,  kstatus, kchan, kdata1, kdata2, gkunit,  ktime
 ;           printf   "%x %x %x %x %f\n",kstatus,  kstatus, kchan, kdata1, kdata2, ktime
 
 ;; initialize the pack on the virtical display strings
@@ -212,6 +213,7 @@ if gktrig == 1 then
 
   printf"%s\n", gktrig, gSdisp[k(0)]
   printf"%s\n", gktrig, gSdisp[k(1)]
+;  printf"%s\n", gktrig, gSdisp[k(2)]
 ;  printf"%s\n", gktrig, gSdisp[k(3)]
 ;  printf"%s\n", gktrig, gSdisp[k(4)]
 ;  printf"%s\n", gktrig, gSdisp[k(5)]
